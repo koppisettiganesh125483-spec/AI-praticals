@@ -1,0 +1,63 @@
+# Step 1: Define facts
+facts = {
+    "fever": True,
+    "cough": True
+}
+
+# Step 2: Define inference rules
+rules = [
+    {
+        "conditions": ["fever", "cough"],
+        "conclusion": "respiratory_infection"
+    },
+    {
+        "conditions": ["respiratory_infection"],
+        "conclusion": "consult_doctor"
+    }
+]
+
+# Step 3: Perform logical inference
+def forward_chaining(facts, rules):
+
+    inferred = dict(facts)
+
+    print("Initial Facts:")
+    for key, value in inferred.items():
+        print(key, "=", value)
+
+    print("\nApplying Inference Rules:")
+
+    changed = True
+
+    while changed:
+        changed = False
+
+        for rule in rules:
+            conditions = rule["conditions"]
+            conclusion = rule["conclusion"]
+
+            # Check whether all conditions are true
+            if all(inferred.get(c, False) for c in conditions):
+
+                if conclusion not in inferred:
+                    inferred[conclusion] = True
+                    changed = True
+
+                    print("Rule Applied:", conditions, "->", conclusion)
+
+    return inferred
+
+
+# Step 4: Execute reasoning
+result = forward_chaining(facts, rules)
+
+# Step 5: Display conclusions
+print("\nFinal Conclusions:")
+
+for key, value in result.items():
+    print(key, "=", value)
+
+if result.get("consult_doctor", False):
+    print("\nConclusion: Doctor consultation is recommended.")
+else:
+    print("\nConclusion: No recommendation derived.")
