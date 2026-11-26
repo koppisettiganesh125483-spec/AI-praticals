@@ -1,0 +1,84 @@
+import numpy as np
+
+# Grid configuration
+rows, cols = 4, 4
+start = (0, 0)
+goal = (3, 3)
+obstacle = (1, 1)
+
+# Parameters
+gamma = 0.9
+threshold = 0.001
+
+# Rewards
+step_reward = -1
+goal_reward = 10
+
+# Initialize value function
+V = np.zeros((rows, cols))
+
+# Possible actions
+actions = {
+    'UP': (-1, 0),
+    'DOWN': (1, 0),
+    'LEFT': (0, -1),
+    'RIGHT': (0, 1)
+}
+
+# Get next state
+def get_next_state(state, action):
+    r, c = state
+    dr, dc = actions[action]
+
+    nr, nc = r + dr, c + dc
+
+    # Check grid boundaries and obstacle
+    if (nr < 0 or nr >= rows or
+        nc < 0 or nc >= cols or
+        (nr, nc) == obstacle):
+        return state
+
+    return (nr, nc)
+
+
+# Value Iteration
+while True:
+    delta = 0
+    new_V = V.copy()
+
+    for r in range(rows):
+        for c in range(cols):
+
+            state = (r, c)
+
+            if state == goal or state == obstacle:
+                continue
+
+            values = []
+
+            for action in actions:
+                next_state = get_next_state(state, action)
+
+                if next_state == goal:
+                    reward = goal_reward
+                else:
+                    reward = step_reward
+
+                value = reward + gamma * V[next_state]
+                values.append(value)
+
+            new_V[state] = max(values)
+
+            delta = max(delta, abs(new_V[state] - V[state]))
+
+    V = new_V
+
+    if delta < threshold:
+        break
+
+
+# Display final value function
+print("Final Value Function:")
+print(np.round(V, 2))
+
+print("\nStart State Value:", V[start])
